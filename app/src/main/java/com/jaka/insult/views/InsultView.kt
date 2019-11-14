@@ -1,5 +1,7 @@
 package com.jaka.insult.views
 
+import com.jaka.domain.model.InsultModel
+
 interface InsultView {
-    fun showInsult(insult:String)
+    fun showInsult(insultModel:InsultModel)
 }

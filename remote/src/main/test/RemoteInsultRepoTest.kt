@@ -1,12 +1,10 @@
-import com.jaka.remote.RemoteInsultRepository
+import com.jaka.remote.RemoteChannelInsultRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.coroutines.CoroutineContext
 
 class RemoteInsultRepoTest  {
 
@@ -25,7 +23,7 @@ class RemoteInsultRepoTest  {
 
     @Test
     fun `make insult request success`() {
-        val repo = RemoteInsultRepository()
+        val repo = RemoteChannelInsultRepository()
         runBlocking  {
             val insult = repo.insult()
             println(insult.insult)
