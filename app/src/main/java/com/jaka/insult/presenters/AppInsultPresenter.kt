@@ -16,11 +16,19 @@ class AppInsultPresenter(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : InsultPresenter, CoroutineScope {
     private val coroutineJob = Job()
+
     override val coroutineContext: CoroutineContext =
         uiDispatcher + coroutineJob
+
     private val handler =
         CoroutineExceptionHandler { _, _ -> insultView.showInsult(InsultModel(InsultStatus.ERROR)) }
+
     private lateinit var insultView: InsultView
+
+    @FlowPreview
+    @ExperimentalCoroutinesApi
+    private val flow = remoteInsultRepository.insult()
+        .flowOn(ioDispatcher)
 
     override fun attach(insultView: InsultView) {
         this.insultView = insultView
@@ -30,8 +38,6 @@ class AppInsultPresenter(
     @ExperimentalCoroutinesApi
     @FlowPreview
     override fun insult() {
-        val flow = remoteInsultRepository.insult()
-            .flowOn(ioDispatcher)
         launch(handler) {
             flow.collect {
                 insultView.showInsult(it)
