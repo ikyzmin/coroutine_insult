@@ -17,11 +17,13 @@ class AppInsultPresenter(
 ) : InsultPresenter, CoroutineScope {
     private val coroutineJob = Job()
 
-    override val coroutineContext: CoroutineContext =
-        uiDispatcher + coroutineJob
+
 
     private val handler =
         CoroutineExceptionHandler { _, _ -> insultView.showInsult(InsultModel(InsultStatus.ERROR)) }
+
+    override val coroutineContext: CoroutineContext =
+        uiDispatcher + handler + coroutineJob
 
     private lateinit var insultView: InsultView
 
@@ -38,7 +40,7 @@ class AppInsultPresenter(
     @ExperimentalCoroutinesApi
     @FlowPreview
     override fun insult() {
-        launch(handler) {
+        launch(coroutineContext) {
             flow.collect {
                 insultView.showInsult(it)
             }
