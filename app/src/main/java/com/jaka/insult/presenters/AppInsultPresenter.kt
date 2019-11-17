@@ -1,5 +1,6 @@
 package com.jaka.insult.presenters
 
+import android.util.Log
 import com.jaka.domain.model.InsultModel
 import com.jaka.domain.model.InsultStatus
 import com.jaka.insult.views.InsultView
@@ -23,14 +24,10 @@ class AppInsultPresenter(
         CoroutineExceptionHandler { _, _ -> insultView.showInsult(InsultModel(InsultStatus.ERROR)) }
 
     override val coroutineContext: CoroutineContext =
-        uiDispatcher + handler + coroutineJob
+        coroutineJob + ioDispatcher
 
-    private lateinit var insultView: InsultView
+                private lateinit var insultView: InsultView
 
-    @FlowPreview
-    @ExperimentalCoroutinesApi
-    private val flow = remoteInsultRepository.insult()
-        .flowOn(ioDispatcher)
 
     override fun attach(insultView: InsultView) {
         this.insultView = insultView
@@ -40,10 +37,14 @@ class AppInsultPresenter(
     @ExperimentalCoroutinesApi
     @FlowPreview
     override fun insult() {
-        launch(coroutineContext) {
-            flow.collect {
-                insultView.showInsult(it)
+        launch {
+            val channel = remoteInsultRepository.insult()
+            for (model in channel) {
+                withContext(uiDispatcher) {
+                    insultView.showInsult(model)
+                }
             }
+            channel.close()
         }
     }
 }
